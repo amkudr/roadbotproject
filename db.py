@@ -4,7 +4,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 import settings
 
-engine = create_engine(settings.API_DATA) #Хранилище не создано, settings пустой
+engine = create_engine(settings.API_DATA) 
 db_session = scoped_session(sessionmaker(bind=engine))
 
 Base = declarative_base()
