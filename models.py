@@ -17,12 +17,13 @@ user_trips = Table('user_trips', Base.metadata,
 
 class User(Base):
     __tablename__ = 'users'
+    
     id = Column(Integer, primary_key=True)
     name = Column(String)    
     phone_number = Column(String)    
     subscribe = Column(Boolean)
     trips = relationship("Trip", secondary = user_trips) #Many to many with Trip
-    car = relationship("Car", backref="driver") #One to many with Car
+    cars = relationship("Car", backref="driver") #One to many with Car
 
     def __repr__(self):
         return f'User id: {self.id}, name: {self.name}'
@@ -31,7 +32,7 @@ class Car(Base):
     __tablename__ = 'cars'
 
     id = Column(Integer, primary_key=True)
-    driver = Column(Integer, ForeignKey(User.id), index=True, nullable=False)    
+    driver_id = Column(Integer, ForeignKey(User.id))    
     model = Column(String)
     year_of_issue = Column(String)
     trip = relationship("Trip", back_populates="car", uselist=False) #One to one with Trip.car
@@ -43,7 +44,7 @@ class Trip(Base):
     __tablename__ = 'trips'
 
     id = Column(Integer, primary_key=True)
-    car_id = Column(Integer, ForeignKey(Car.id), index=True, nullable=False)    
+    car_id = Column(Integer, ForeignKey(Car.id))    
     route = Column(String)
     date = Column(Date)
     car = relationship("Car", back_populates="trip", uselist=False) #One to one with Car.trip
