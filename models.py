@@ -13,7 +13,7 @@ user_trips = Table('user_trips', Base.metadata,
 class User(Base):
     __tablename__ = 'users'
     
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, unique=True, primary_key=True)
     name = Column(String)    
     nickname = Column(String)
     phone_number = Column(String)    
@@ -27,7 +27,7 @@ class User(Base):
 class Car(Base):
     __tablename__ = 'cars'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, index=True, unique=True, primary_key=True)
     driver_id = Column(Integer, ForeignKey(User.id))    
     model = Column(String)
     year_of_issue = Column(String)
