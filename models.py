@@ -37,9 +37,7 @@ class Car(Base):
     driver_id = Column(Integer, ForeignKey(User.id))
     model = Column(String)
     year = Column(String)
-    trip = relationship(
-        "Trip", back_populates="car",
-        uselist=False)  # One to one with Trip.car
+    trip = relationship("Trip", backref="car")  # One to many with Trip.car
 
     def __repr__(self):
         return f'Car id: {self.id}'
@@ -53,9 +51,6 @@ class Trip(Base):
     departure_point = Column(String)
     arrival_point = Column(String)
     date = Column(DateTime)
-    car = relationship(
-            "Car", back_populates="trip",
-            uselist=False)  # One to one with Car.trip
     passengers = relationship(
             "User", secondary=user_trips,
             back_populates="trips")  # Many to many with User
