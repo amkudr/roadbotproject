@@ -28,7 +28,7 @@ def car_registration_model(update, context):
 
 def car_year(update, context):
     year = int(update.message.text)
-    if year < 1920 or year >= date.today().year:
+    if year < 1920 or year > date.today().year:
         update.message.reply_text("Пожалуйста введите год выпуска автомобиля")
         return "year"
     context.user_data["car"]["year"] = year
