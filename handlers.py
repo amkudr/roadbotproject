@@ -1,4 +1,4 @@
-from telegram.ext import ConversationHandler, MessageHandler, Filters
+from telegram.ext import ConversationHandler, MessageHandler, Filters, CallbackQueryHandler
 import logging
 
 from create_user import get_or_create_user
@@ -6,19 +6,18 @@ from car_registration import (
                         anketa_wrong_answer, car_registration_start,
                         car_registration_model, car_year)
 from trip_registration import (
-                        trip_registration_start, trip_date, trip_time,
-                        trip_arrival_point, trip_departure_point)
-from utils import main_keyboard
+                        trip_registration_start, trip_time,
+                        trip_arrival_point, trip_departure_point, inline_handler)
+
 logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 
 def greet_user(update, context):
 
     logging.info('User /start')
-    #get_or_create_user(update)  # Файл вместо регистрации. Временный
+    get_or_create_user(update)  # Файл вместо регистрации. Временный
     update.message.reply_text(
-        'Привет!',
-        reply_markup=main_keyboard()
+        'Привет!'
     )
 
 
@@ -42,8 +41,8 @@ trip_registration = ConversationHandler(
         entry_points=[
             MessageHandler(Filters.regex('^(Создать поездку)$'), trip_registration_start)
         ],
-        states={
-            "date": [MessageHandler(Filters.text, trip_date)],
+        states={            
+            "calendar": [CallbackQueryHandler(inline_handler)],
             "time": [MessageHandler(Filters.text, trip_time)],
             "arrival_point": [MessageHandler(Filters.text, trip_arrival_point)],
             "departure_point": [MessageHandler(Filters.text, trip_departure_point)]
