@@ -19,7 +19,7 @@ class User(Base):
     id = Column(Integer, unique=True, primary_key=True)
     name = Column(String)
     nickname = Column(String)
-    phone_number = Column(String)
+    phone = Column(String)
     subscribe = Column(Boolean)
     trips = relationship(
             "Trip", secondary=user_trips,
