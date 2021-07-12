@@ -1,6 +1,6 @@
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-# from actual_trips import actual_trips
+from actual_trips import actual_trips
 from handlers import (
             greet_user, user_registration,
             car_registration, trip_registration)
@@ -15,7 +15,7 @@ def main():
     dp.add_handler(car_registration)
     dp.add_handler(trip_registration)
     dp.add_handler(CommandHandler("start", greet_user))
-    # dp.add_handler(MessageHandler(Filters.regex("^(Актуальные поездки)$"), actual_trips))
+    dp.add_handler(MessageHandler(Filters.regex("^(Актуальные поездки)$"), actual_trips))
 
     mybot.start_polling()
     mybot.idle()
