@@ -20,9 +20,9 @@ def inline_handler(update, context):
     if selected:
         context.user_data["trip"] = {"date": date.strftime("%d/%m/%Y")}
         bot.send_message(
-                        chat_id=update.callback_query.from_user.id,
-                        text="Введите время отправления HH:MM",
-                        reply_markup=ReplyKeyboardRemove())
+            chat_id=update.callback_query.from_user.id,
+            text="Введите время отправления HH:MM",
+            reply_markup=ReplyKeyboardRemove())
         return "time"
     return "calendar"
 
