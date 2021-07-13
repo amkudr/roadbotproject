@@ -4,23 +4,27 @@ from datetime import datetime
 
 from db import db_session
 from models import Trip, Car
+import telegramcalendar
 
 
 def trip_registration_start(update, context):
     update.message.reply_text(
         "Введите дату поездки DD.MM.YYYY",
-        reply_markup=ReplyKeyboardRemove()
-    )
-    return "date"
+        reply_markup=telegramcalendar.create_calendar())
+    return "calendar"
 
 
-def trip_date(update, context):
-    date = update.message.text
-    context.user_data["trip"] = {"date": date}
-    update.message.reply_text(
-        "Введите время отправления HH:MM"
-    )
-    return "time"
+def inline_handler(update, context):
+    bot = update.callback_query.message.bot
+    selected, date = telegramcalendar.process_calendar_selection(bot, update)
+    if selected:
+        context.user_data["trip"] = {"date": date.strftime("%d/%m/%Y")}
+        bot.send_message(
+            chat_id=update.callback_query.from_user.id,
+            text="Введите время отправления HH:MM",
+            reply_markup=ReplyKeyboardRemove())
+        return "time"
+    return "calendar"
 
 
 def trip_time(update, context):
@@ -50,7 +54,7 @@ def trip_departure_point(update, context):
 <b>Поездка успешно добавлена</b>
     """
     update.message.reply_text(user_text, parse_mode=ParseMode.HTML)
-    day, month, year = map(int, context.user_data["trip"]["date"].split('.'))
+    day, month, year = map(int, context.user_data["trip"]["date"].split('/'))
     hour, minute = map(int, context.user_data["trip"]["time"].split(':'))
     trip = Trip(
         car_id=Car.query.filter(
