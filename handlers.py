@@ -2,12 +2,17 @@ from telegram.ext import ConversationHandler, MessageHandler, Filters, CallbackQ
 import logging
 
 from create_user import get_or_create_user
+from user_registration import (
+                        anketa_start, anketa_name,
+                        anketa_phone)
 from car_registration import (
                         anketa_wrong_answer, car_registration_start,
                         car_registration_model, car_year)
 from trip_registration import (
                         trip_registration_start, trip_time,
-                        trip_arrival_point, trip_departure_point, inline_handler)
+                        trip_arrival_point, trip_departure_point,
+                        inline_handler)
+
 
 logging.basicConfig(filename='bot.log', level=logging.INFO)
 
@@ -18,6 +23,22 @@ def greet_user(update, context):
     get_or_create_user(update)  # Файл вместо регистрации. Временный
     update.message.reply_text(
         'Привет!'
+    )
+
+
+user_registration = ConversationHandler(
+        entry_points=[
+            MessageHandler(Filters.regex('^(Зарегистрироваться)$'), anketa_start)
+        ],
+        states={
+            "name": [MessageHandler(Filters.text, anketa_name)],
+            "phone": [MessageHandler(Filters.regex('\d+'), anketa_phone)]
+        },
+        fallbacks=[
+            MessageHandler(
+                Filters.text | Filters.photo | Filters.video |
+                Filters.document | Filters.location, anketa_wrong_answer)
+        ]
     )
 
 
