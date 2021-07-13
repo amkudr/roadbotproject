@@ -13,6 +13,7 @@ from trip_registration import (
                         trip_arrival_point, trip_departure_point,
                         inline_handler)
 
+
 logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 
