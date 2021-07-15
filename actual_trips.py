@@ -37,7 +37,7 @@ def actual_trips_choice(update, context):
     update.callback_query.answer()
     choice = update.callback_query.data
     text = f"Вы забронироли место в поездке номер {choice}"
-    update.callback_query.edit_message_caption(caption=text)
+    update.callback_query.edit_message_text(text=text, reply_markup=None)
 
 
 def actual_trips_keyboard(count):
