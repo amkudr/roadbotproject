@@ -1,4 +1,4 @@
-from telegram import ParseMode, ReplyKeyboardRemove
+from telegram import ParseMode, ReplyKeyboardRemove, ReplyKeyboardMarkup
 from telegram.ext import ConversationHandler
 
 from db import db_session
@@ -26,12 +26,6 @@ def anketa_name(update, context):
 def anketa_phone(update, context):
     user_phone = update.message.text
     context.user_data['user']['phone'] = user_phone
-    user_text = f"""
-    <b>Имя</b>: {context.user_data["user"]["name"]}
-<b>Номер телефона</b>: {context.user_data["user"]["phone"]}
-<b>Успешно зарегистрировался</b>
-    """
-    update.message.reply_text(user_text, parse_mode=ParseMode.HTML)
     user = User(
         id=update.message.from_user['id'],
         name=context.user_data['user']['name'],
@@ -39,4 +33,18 @@ def anketa_phone(update, context):
     )
     db_session.add(user)
     db_session.commit()
+    user_text = f"""
+    <b>Имя</b>: {context.user_data["user"]["name"]}
+<b>Номер телефона</b>: {context.user_data["user"]["phone"]}
+<b>Успешно зарегистрировался</b>
+    """
+    update.message.reply_text(user_text, parse_mode=ParseMode.HTML)
+    if context.user_data["from_actual_trips"] is True:
+        update.message.reply_text(
+            "Вы можете продолжить процесс выбора поездки",
+            reply_markup=ReplyKeyboardMarkup(
+                [['Актуальные поездки']],
+                resize_keyboard=True,
+                one_time_keyboard=True))
+        context.user_data["from_actual_trips"] = False
     return ConversationHandler.END

@@ -1,9 +1,10 @@
 from telegram import ReplyKeyboardMarkup
-from telegram.ext import ConversationHandler, MessageHandler, Filters, CallbackQueryHandler
+from telegram.ext import (
+    ConversationHandler, MessageHandler,
+    Filters, CallbackQueryHandler)
 import logging
 
 from actual_trips import (actual_trips_show, actual_trips_choice)
-from create_user import get_or_create_user
 from user_registration import (
                         anketa_start, anketa_name,
                         anketa_phone)

@@ -1,4 +1,6 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, message
+from telegram import (
+    InlineKeyboardButton, InlineKeyboardMarkup,
+    ParseMode, ReplyKeyboardMarkup)
 from telegram.ext import ConversationHandler
 from datetime import datetime
 from db import db_session
@@ -24,7 +26,20 @@ def actual_trips_show(update, context):
       <b>Машина:</b> {trip.car.model}, {trip.car.year} года выпуска
     """
     update.message.reply_text(user_text, parse_mode=ParseMode.HTML)
-    print(User.query.filter_by(id=update.message.from_user['id']))    
+    user_id = update.message.from_user['id']
+    check = db_session.query(
+        db_session.query(User).filter_by(id=user_id).exists()
+        ).scalar()
+    if check is False:
+        context.user_data["from_actual_trips"] = True
+        update.message.reply_text(
+            "Для бронирования места вам необходимо зарегистрироваться",
+            reply_markup=ReplyKeyboardMarkup(
+                [['Зарегистрироваться']],
+                resize_keyboard=True,
+                one_time_keyboard=True)
+                )
+        return ConversationHandler.END
     update.message.reply_text(
         "Выберите номер поездки",
         reply_markup=actual_trips_keyboard(i)
