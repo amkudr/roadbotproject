@@ -1,7 +1,10 @@
-from telegram.ext import ConversationHandler, MessageHandler, Filters, CallbackQueryHandler
+from telegram import ReplyKeyboardMarkup
+from telegram.ext import (
+    ConversationHandler, MessageHandler,
+    Filters, CallbackQueryHandler)
 import logging
 
-from create_user import get_or_create_user
+from actual_trips import (actual_trips_show, actual_trips_choice)
 from user_registration import (
                         anketa_start, anketa_name,
                         anketa_phone)
@@ -13,16 +16,16 @@ from trip_registration import (
                         trip_arrival_point, trip_departure_point,
                         inline_handler)
 
-
 logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 
 def greet_user(update, context):
-
     logging.info('User /start')
-    get_or_create_user(update)  # Файл вместо регистрации. Временный
     update.message.reply_text(
-        'Привет!'
+        'Здравствуйте, я бот по поиску попутчиков в путешествиях! С чего начнем?',
+        reply_markup=ReplyKeyboardMarkup(
+            [['Актуальные поездки'], ['Создать поездку']],
+            resize_keyboard=True, one_time_keyboard=True)
     )
 
 
@@ -67,6 +70,21 @@ trip_registration = ConversationHandler(
             "time": [MessageHandler(Filters.text, trip_time)],
             "arrival_point": [MessageHandler(Filters.text, trip_arrival_point)],
             "departure_point": [MessageHandler(Filters.text, trip_departure_point)]
+        },
+        fallbacks=[
+            MessageHandler(
+                Filters.text | Filters.photo | Filters.video |
+                Filters.document | Filters.location, anketa_wrong_answer)
+        ]
+    )
+
+
+actual_trips = ConversationHandler(
+      entry_points=[
+            MessageHandler(Filters.regex('^(Актуальные поездки)$'), actual_trips_show)
+        ],
+        states={
+            "choice": [CallbackQueryHandler(actual_trips_choice)]
         },
         fallbacks=[
             MessageHandler(

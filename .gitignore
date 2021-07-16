@@ -139,3 +139,7 @@ settings.py
 
 #data
 data/
+
+#Experemental staff
+requests.py
+create_user.py

@@ -9,7 +9,7 @@ import telegramcalendar
 
 def trip_registration_start(update, context):
     update.message.reply_text(
-        "Введите дату поездки DD.MM.YYYY",
+        "Выберите дату поездки",
         reply_markup=telegramcalendar.create_calendar())
     return "calendar"
 
