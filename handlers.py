@@ -1,3 +1,4 @@
+from telegram import ReplyKeyboardMarkup
 from telegram.ext import ConversationHandler, MessageHandler, Filters, CallbackQueryHandler
 import logging
 
@@ -18,11 +19,12 @@ logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 
 def greet_user(update, context):
-
     logging.info('User /start')
-    get_or_create_user(update)  # Файл вместо регистрации. Временный
     update.message.reply_text(
-        'Привет!'
+        'Здравствуйте, я бот по поиску попутчиков в путешествиях! С чего начнем?',
+        reply_markup=ReplyKeyboardMarkup(
+            [['Актуальные поездки'], ['Создать поездку']],
+            resize_keyboard=True, one_time_keyboard=True)
     )
 
 
