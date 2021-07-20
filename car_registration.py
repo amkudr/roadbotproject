@@ -1,13 +1,13 @@
 from telegram import ParseMode, ReplyKeyboardRemove
-from telegram.ext import ConversationHandler
 from datetime import date
 
 from db import db_session
 from models import Car
+from trip_registration import cars_keyboard
 
 
 def car_registration_start(update, context):
-    update.message.reply_text(
+    update.callback_query.message.reply_text(
         "Введите марку машины и модель",
         reply_markup=ReplyKeyboardRemove()
     )
@@ -38,14 +38,19 @@ def car_year(update, context):
 <b>Успешно добавлен</b>
     """
     update.message.reply_text(user_text, parse_mode=ParseMode.HTML)
+    user_id = update.message.from_user['id']
     car = Car(
-        driver_id=update.message.from_user['id'],
+        driver_id=user_id,
         model=context.user_data["car"]["model"],
         year=context.user_data["car"]["year"]
     )
     db_session.add(car)
     db_session.commit()
-    return ConversationHandler.END
+    update.message.reply_text(
+        "Выберите машину",
+        reply_markup=cars_keyboard(user_id)
+    )
+    return "car"
 
 
 def anketa_wrong_answer(update, context):
