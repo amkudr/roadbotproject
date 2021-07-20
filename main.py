@@ -2,7 +2,7 @@ from telegram.ext import Updater, CommandHandler
 
 from handlers import (
             greet_user, actual_trips, user_registration,
-            car_registration, trip_registration)
+            trip_registration)
 import settings
 
 
@@ -12,7 +12,6 @@ def main():
 
     dp.add_handler(actual_trips)
     dp.add_handler(user_registration)
-    dp.add_handler(car_registration)
     dp.add_handler(trip_registration)
     dp.add_handler(CommandHandler("start", greet_user))
 

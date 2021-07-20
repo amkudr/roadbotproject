@@ -39,7 +39,7 @@ def anketa_phone(update, context):
 <b>Успешно зарегистрировался</b>
     """
     update.message.reply_text(user_text, parse_mode=ParseMode.HTML)
-    if context.user_data["from_actual_trips"] is True:
+    if context.user_data.get("from_actual_trips", False) is True:
         update.message.reply_text(
             "Вы можете продолжить процесс выбора поездки",
             reply_markup=ReplyKeyboardMarkup(

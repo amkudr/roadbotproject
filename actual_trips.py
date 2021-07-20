@@ -1,10 +1,10 @@
 from telegram import (
     InlineKeyboardButton, InlineKeyboardMarkup,
-    ParseMode, ReplyKeyboardMarkup)
+    ParseMode, ReplyKeyboardMarkup, ReplyKeyboardRemove)
 from telegram.ext import ConversationHandler
 from datetime import datetime
-from db import db_session
 
+from db import db_session
 from models import Trip, User
 
 
@@ -25,23 +25,27 @@ def actual_trips_show(update, context):
       <b>Водитель:</b> {trip.car.driver.name}
       <b>Машина:</b> {trip.car.model}, {trip.car.year} года выпуска
     """
-    update.message.reply_text(user_text, parse_mode=ParseMode.HTML)
     user_id = update.message.from_user['id']
     check = db_session.query(
         db_session.query(User).filter_by(id=user_id).exists()
         ).scalar()
-    if check is False:
+    if not check:
         context.user_data["from_actual_trips"] = True
         update.message.reply_text(
-            "Для бронирования места вам необходимо зарегистрироваться",
+            user_text,
+            parse_mode=ParseMode.HTML,
             reply_markup=ReplyKeyboardMarkup(
-                [['Зарегистрироваться']],
-                resize_keyboard=True,
-                one_time_keyboard=True)
-                )
+                    [['Зарегистрироваться']],
+                    resize_keyboard=True,
+                    one_time_keyboard=True)
+                    )
         return ConversationHandler.END
     update.message.reply_text(
-        "Выберите номер поездки",
+        user_text,
+        parse_mode=ParseMode.HTML,
+        reply_markup=ReplyKeyboardRemove())
+    update.message.reply_text(
+        "Для бронирования выберите номер поездки",
         reply_markup=actual_trips_keyboard(i)
     )
     return "choice"
@@ -51,8 +55,8 @@ def actual_trips_choice(update, context):
     update.callback_query.answer()
     trip_number = int(update.callback_query.data)
     trip = context.user_data["trips"][trip_number]
-    id = update.callback_query.from_user['id']
-    user = User.query.filter(User.id == id).first()
+    user_id = update.callback_query.from_user['id']
+    user = User.query.filter(User.id == user_id).first()
     trip.passengers.append(user)
     db_session.commit()
     time = trip.date.time().strftime('%H:%M')
@@ -71,6 +75,16 @@ def actual_trips_choice(update, context):
     return ConversationHandler.END
 
 
+def actual_trips_back(update, context):
+    update.callback_query.message.reply_text(
+        text="Выберите пункт меню",
+        reply_markup=ReplyKeyboardMarkup(
+            [['Актуальные поездки'], ['Создать поездку']],
+            resize_keyboard=True,
+            one_time_keyboard=True))
+    return ConversationHandler.END
+
+
 def actual_trips_keyboard(count):
     keyboard = [
         actual_trips_list(count)
@@ -82,6 +96,7 @@ def actual_trips_list(number):
     trips = []
     for choice in range(1, number + 1):
         trips.append(InlineKeyboardButton(choice, callback_data=choice))
+    trips.append(InlineKeyboardButton('Назад', callback_data="back"))
     return trips
 
 
