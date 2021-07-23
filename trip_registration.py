@@ -1,15 +1,18 @@
+from types import FrameType
 from telegram import (
     ParseMode, ReplyKeyboardRemove,
-    InlineKeyboardButton, InlineKeyboardMarkup)
+    InlineKeyboardButton, InlineKeyboardMarkup, replymarkup)
 from telegram.ext import ConversationHandler
 from datetime import datetime
 
 from db import db_session
 from models import Trip, Car
 import telegramcalendar
+from utils import back_to_main_menu, back_keyboard
 
 
 def trip_registration_start(update, context):
+
     update.message.reply_text(
         "Выберите дату поездки",
         reply_markup=telegramcalendar.create_calendar())
@@ -24,7 +27,7 @@ def inline_handler(update, context):
         bot.send_message(
             chat_id=update.callback_query.from_user.id,
             text="Введите время отправления HH:MM",
-            reply_markup=ReplyKeyboardRemove())
+            reply_markup=back_keyboard())
         return "time"
     return "calendar"
 
@@ -32,7 +35,9 @@ def inline_handler(update, context):
 def trip_time(update, context):
     time = update.message.text
     context.user_data["trip"]["time"] = time
-    update.message.reply_text("Введите место отправления")
+    update.message.reply_text(
+        "Введите место отправления",
+        reply_markup=back_keyboard())
     return "arrival_point"
 
 
@@ -40,7 +45,8 @@ def trip_arrival_point(update, context):
     arrival_point = update.message.text
     context.user_data["trip"]["arrival_point"] = arrival_point
     update.message.reply_text(
-        "Введите место прибытия "
+        "Введите место прибытия",
+        reply_markup=back_keyboard()
     )
     return "departure_point"
 
@@ -85,8 +91,9 @@ def cars_keyboard(user_id):
     cars = []
     for car in cars_info:
         car_text = f"{car.model} {car.year} года выпуска"
-        cars.append(InlineKeyboardButton(car_text, callback_data=car.id))
-    cars.append(InlineKeyboardButton(
-        'Добавить машину', callback_data="new_car"))
-    keyboard = InlineKeyboardMarkup([cars])
+        cars.append([InlineKeyboardButton(car_text, callback_data=car.id)])
+    cars.append([InlineKeyboardButton(
+        'Добавить машину', callback_data="new_car")])
+    cars.append([InlineKeyboardButton('Назад', callback_data="back")])
+    keyboard = InlineKeyboardMarkup(cars)
     return keyboard

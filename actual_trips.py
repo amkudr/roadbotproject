@@ -75,20 +75,11 @@ def actual_trips_choice(update, context):
     return ConversationHandler.END
 
 
-def actual_trips_back(update, context):
-    update.callback_query.message.reply_text(
-        text="Выберите пункт меню",
-        reply_markup=ReplyKeyboardMarkup(
-            [['Актуальные поездки'], ['Создать поездку']],
-            resize_keyboard=True,
-            one_time_keyboard=True))
-    return ConversationHandler.END
-
-
 def actual_trips_keyboard(count):
     keyboard = [
         actual_trips_list(count)
     ]
+    keyboard.append([InlineKeyboardButton('Назад', callback_data="back")])
     return InlineKeyboardMarkup(keyboard)
 
 
@@ -96,7 +87,6 @@ def actual_trips_list(number):
     trips = []
     for choice in range(1, number + 1):
         trips.append(InlineKeyboardButton(choice, callback_data=choice))
-    trips.append(InlineKeyboardButton('Назад', callback_data="back"))
     return trips
 
 
