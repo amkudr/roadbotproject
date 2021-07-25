@@ -47,4 +47,12 @@ def anketa_phone(update, context):
                 resize_keyboard=True,
                 one_time_keyboard=True))
         context.user_data["from_actual_trips"] = False
+    if context.user_data.get("from_trip_registration", False) is True:
+        update.message.reply_text(
+            "Вы можете продолжить создавать поездку",
+            reply_markup=ReplyKeyboardMarkup(
+                [['Создать поездку']],
+                resize_keyboard=True,
+                one_time_keyboard=True))
+        context.user_data["from_trip_registration"] = False
     return ConversationHandler.END

@@ -1,17 +1,31 @@
 from types import FrameType
 from telegram import (
     ParseMode, ReplyKeyboardRemove,
-    InlineKeyboardButton, InlineKeyboardMarkup, replymarkup)
+    InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup)
 from telegram.ext import ConversationHandler
 from datetime import datetime
 
 from db import db_session
-from models import Trip, Car
+from models import Trip, Car, User
 import telegramcalendar
 from utils import back_to_main_menu, back_keyboard
 
 
 def trip_registration_start(update, context):
+    user_id = update.message.from_user['id']
+    check = db_session.query(
+        db_session.query(User).filter_by(id=user_id).exists()
+        ).scalar()
+    if not check:
+        context.user_data["from_trip_registration"] = True
+        update.message.reply_text(
+            "Для создания поездки необходимо  зарегистрироваться",
+            reply_markup=ReplyKeyboardMarkup(
+                    [['Зарегистрироваться']],
+                    resize_keyboard=True,
+                    one_time_keyboard=True)
+                    )
+        return ConversationHandler.END
 
     update.message.reply_text(
         "Выберите дату поездки",
@@ -23,6 +37,7 @@ def inline_handler(update, context):
     bot = update.callback_query.message.bot
     selected, date = telegramcalendar.process_calendar_selection(bot, update)
     if selected:
+        update.callback_query.delete_message()
         context.user_data["trip"] = {"date": date.strftime("%d/%m/%Y")}
         bot.send_message(
             chat_id=update.callback_query.from_user.id,

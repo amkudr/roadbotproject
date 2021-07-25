@@ -3,6 +3,7 @@ from telegram import (
     InlineKeyboardMarkup)
 from telegram.ext import ConversationHandler
 
+
 def main_keyboard():
     keyboard = ReplyKeyboardMarkup(
         [['Актуальные поездки'], ['Создать поездку']],
