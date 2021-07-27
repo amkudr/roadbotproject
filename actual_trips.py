@@ -14,18 +14,24 @@ def actual_trips_show(update, context):
     user_text = "<b>Актуальные поездки:</b>"
     i = 0
     context.user_data["trips"] = {}
+    user_id = update.message.from_user['id']
+    keyboard_list = []
     for trip in request:
         i += 1
         context.user_data["trips"][i] = trip
         time = trip.date.time().strftime('%H:%M')
-        date = trip.date.date().strftime('%d/%m/%y')
+        date = trip.date.date().strftime('%d/%m/%y')       
+        if trip.car.driver_id == user_id:
+            is_driver = "<b>(Вы водитель)</b>"
+        else:
+            is_driver = None
+            keyboard_list.append(i)
         user_text += f"""
 {i}) <b>{trip.departure_point} - {trip.arrival_point}</b>
       <b>Время:</b> {time} <b>Дата:</b> {date}
-      <b>Водитель:</b> {trip.car.driver.name}
+      <b>Водитель:</b> {trip.car.driver.name} {is_driver}
       <b>Машина:</b> {trip.car.model}, {trip.car.year} года выпуска
-    """
-    user_id = update.message.from_user['id']
+    """    
     check = db_session.query(
         db_session.query(User).filter_by(id=user_id).exists()
         ).scalar()
@@ -46,7 +52,7 @@ def actual_trips_show(update, context):
         reply_markup=ReplyKeyboardRemove())
     update.message.reply_text(
         "Для бронирования выберите номер поездки",
-        reply_markup=actual_trips_keyboard(i)
+        reply_markup=actual_trips_keyboard(keyboard_list)
     )
     return "choice"
 
@@ -83,9 +89,9 @@ def actual_trips_keyboard(count):
     return InlineKeyboardMarkup(keyboard)
 
 
-def actual_trips_list(number):
+def actual_trips_list(keyboard_list):
     trips = []
-    for choice in range(1, number + 1):
+    for choice in keyboard_list:
         trips.append(InlineKeyboardButton(choice, callback_data=choice))
     return trips
 
